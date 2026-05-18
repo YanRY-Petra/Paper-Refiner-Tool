@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>paper-refiner tool</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>论文段落润色</h1>
+    <p class="muted">paper-refiner tool · 上传 docx → 选择段落与提示词 → 生成改写 → 人工审核后导出</p>
+  </header>
+
+  <main class="container">
+    <section class="card" id="upload-section">
+      <h2>1. 上传原稿</h2>
+      <label class="file-label">
+        <input type="file" id="file-input" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+        <span class="btn secondary">选择 .docx 文件</span>
+      </label>
+      <span id="file-name" class="muted"></span>
+      <p id="restore-hint" class="muted small restore-hint hidden"></p>
+      <p id="upload-error" class="error" hidden></p>
+    </section>
+
+    <section class="card hidden" id="pick-section">
+      <h2>2. 选择段落与 Prompt</h2>
+      <p class="muted small">勾选段落与 Prompt 设置会<strong>自动保存</strong>；刷新页面或重启服务后，将自动恢复上次会话，可直接点「生成改写」。</p>
+      <p class="muted small">仅显示正文流中的段落（表内段落不在列表）。可一次勾选多段（默认最多 1000 段，环境变量 <code>PAPER_REFINER_MAX_BATCH</code> 可调）。点击「生成改写」后，服务端<strong>按段落编号从小到大</strong>逐段调用 LLM（每段一次请求），完成后在「3. 人工审核」中按序号展示。</p>
+      <div class="pick-toolbar">
+        <div class="pick-toolbar-left">
+          <label class="filter-bar">
+            <input type="checkbox" id="filter-eligible" />
+            仅显示可改写段落
+          </label>
+          <div class="pick-select-actions">
+            <button type="button" class="btn secondary btn-compact" id="btn-select-all-eligible">全选可改写</button>
+            <button type="button" class="btn secondary btn-compact" id="btn-select-none">全不选</button>
+          </div>
+        </div>
+        <span id="selection-usage" class="selection-usage muted small" title="已勾选 / 单次生成上限">0/1000</span>
+      </div>
+      <div class="row">
+        <label>Prompt
+          <select id="prompt-select"></select>
+        </label>
+        <label>Temperature
+          <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1" />
+        </label>
+        <label>模型（可选覆盖）
+          <input type="text" id="model-override" placeholder="留空则用环境变量 OPENAI_MODEL" />
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table id="para-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>状态</th>
+              <th>样式</th>
+              <th>完整正文</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button type="button" class="btn primary" id="btn-refine">生成改写</button>
+      <p id="refine-error" class="error" hidden></p>
+    </section>
+
+    <section class="card hidden" id="review-section">
+      <h2>3. 人工审核</h2>
+      <p class="muted small">结果按段落编号升序排列。可编辑右侧「改写稿」；仅「采纳本段」勾选的段落会写入导出 docx。</p>
+      <div id="results"></div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="btn-export">导出已采纳段落为 docx</button>
+        <button type="button" class="btn secondary" id="btn-reset">重新上传</button>
+      </div>
+      <p id="export-error" class="error" hidden></p>
+    </section>
+  </main>
+
+  <footer class="footer muted small">
+    API 兼容 OpenAI 格式；gptsapi 可使用 <code>OPENAI_API_BASE=https://api.gptsapi.net</code>；DeepSeek 可使用 <code>https://api.deepseek.com</code>。
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

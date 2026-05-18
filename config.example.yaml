@@ -1,0 +1,14 @@
+# Paragraphs matching these style name substrings (case-insensitive) are skipped.
+skip_style_substrings:
+  - "heading"
+  - "标题"
+  - "caption"
+  - "题注"
+  - "toc"
+  - "目录"
+  - "bibliography"
+  - "参考文献"
+
+# If non-empty, ONLY paragraphs whose style contains one of these substrings are treated as body.
+# Leave empty to mean: not skipped by skip_style_substrings and passes structural filters.
+body_style_substrings: []

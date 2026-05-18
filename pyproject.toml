@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paper-refiner-tool"
+version = "0.2.0"
+description = "Paper Refiner Tool — selective DOCX body paragraph rewriter with multi-prompt LLM support"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-docx>=1.1.0",
+    "typer>=0.12.0",
+    "httpx>=0.27.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+paper-refiner = "paper_refiner.cli:app"
+paper-refiner-web = "paper_refiner.web.run:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
